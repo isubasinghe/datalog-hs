@@ -1,0 +1,49 @@
+name:          gordian-gen
+version:       0.0.0.1
+license:       BSD3
+license-file:  LICENSE
+copyright:     (c) Trustworthy Systems
+author:        Isitha Subasinghe
+maintainer:    Isitha Subasinghe <isubasinghe@unsw.edu.au>
+bug-reports:   mailto:isubasinghe@unsw.edu.au
+stability:     stable
+homepage:      https://github.com/isubasinghe/gordian-gen
+synopsis:
+  gordian-gen, a generator of SMT bitvec queries from Haskell specification
+
+category:      Console, Text
+cabal-version: >=1.8
+build-type:    Simple
+description:   This is a generator of SMT from Haskell specification. 
+
+source-repository head
+  type:     git
+  location: https://github.com/isubasinghe/gordian-gen
+
+flag threaded
+  default: False
+
+executable gordian-gen
+  hs-source-dirs: src
+  main-is:        gordian-gen.hs
+  build-depends:
+      base              >=4.2 && <5
+    , bv-sized
+    , containers        >=0.6 && <0.7
+    , ghc-prim
+    , mtl
+    , parsec
+    , s-cargot
+    , template-haskell
+    , text
+    , th-lift
+    , transformers
+
+  if flag(threaded)
+    ghc-options: -threaded
+
+  -- Instructions on how to write this file are in the Cabal
+  -- documentation, which can be found here:
+  --   http://haskell.org/cabal/release/cabal-latest/doc/users-guide/
+
+  ghc-options:    -Werror=incomplete-patterns
