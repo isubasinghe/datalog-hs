@@ -1,13 +1,13 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Main (main) where
 
-import Data.Maybe (fromMaybe, mapMaybe)
-import Data.List (nub)
 import Data.Function (fix)
+import Data.List (nub)
+import Data.Maybe (fromMaybe, mapMaybe)
 
 data Rule = Rule {_head :: !Atom, _body :: ![Atom]}
 
@@ -45,25 +45,25 @@ unify (Atom predSym ts) (Atom predSym' ts')
         _anyOtherFailure -> return $ (v, s) : incompleteSubstitution
     go ((_, Var {}) : _) = error "The second atom is assumed to be ground."
 
-evalAtom :: KnowledgeBase -> Atom -> [ Substitution ] -> [ Substitution ]
+evalAtom :: KnowledgeBase -> Atom -> [Substitution] -> [Substitution]
 evalAtom kb atom substitutions = do
   substitution <- substitutions
   let downToEarthAtom = substitute atom substitution
   extension <- mapMaybe (unify downToEarthAtom) kb
   return $ substitution <> extension
 
-walk :: KnowledgeBase -> [ Atom ] -> [ Substitution ]
-walk kb = foldr (evalAtom kb) [ emptySubstitution ]
+walk :: KnowledgeBase -> [Atom] -> [Substitution]
+walk kb = foldr (evalAtom kb) [emptySubstitution]
 
 evalRule :: KnowledgeBase -> Rule -> KnowledgeBase
 evalRule kb (Rule head body) = map (substitute head) (walk kb body)
 
 isRangeRestricted :: Rule -> Bool
-isRangeRestricted Rule{..} =
+isRangeRestricted Rule {..} =
   vars _head `isSubsetOf` concatMap vars _body
   where
-  isSubsetOf as bs = all (`elem` bs) as
-  vars Atom{..} = nub $ filter (\case {Var{} -> True; _other -> False}) _terms
+    isSubsetOf as bs = all (`elem` bs) as
+    vars Atom {..} = nub $ filter (\case Var {} -> True; _other -> False) _terms
 
 immediateConsequence :: Program -> KnowledgeBase -> KnowledgeBase
 immediateConsequence rules kb =
@@ -75,11 +75,14 @@ solve rules =
     then fix step []
     else error "The input program is not range-restricted."
   where
-  step :: (KnowledgeBase -> KnowledgeBase)
-       -> (KnowledgeBase -> KnowledgeBase)
-  step f currentKB | nextKB <- immediateConsequence rules currentKB =
-    if nextKB == currentKB
-      then currentKB
-      else f nextKB
+    step ::
+      (KnowledgeBase -> KnowledgeBase) ->
+      (KnowledgeBase -> KnowledgeBase)
+    step f currentKB
+      | nextKB <- immediateConsequence rules currentKB =
+          if nextKB == currentKB
+            then currentKB
+            else f nextKB
+
 main = do
   putStrLn "DONE"
